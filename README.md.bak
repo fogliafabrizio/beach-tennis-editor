@@ -1,0 +1,66 @@
+# Beach Tennis Editor
+
+Applicazione desktop Windows per editare video di partite di Beach Tennis con overlay del punteggio.
+
+## Features
+
+- 📹 **Import e montaggio video** — unisci e ritaglia più spezzoni di partita
+- 🎯 **Score Keyer** — segna ogni punto con un click (o tasto) nel momento esatto del video
+- 📊 **Overlay punteggio** — live compatto sempre visibile + dettagliato sulle pause
+- 🎨 **Template grafici** — scegli lo stile dell'overlay tra più opzioni
+- 🏐 **Tutti i formati BT** — set da 6, set da 9, long tie-break a 10
+- 💾 **Export video** — video finale con overlay renderizzato da FFmpeg
+
+## Prerequisiti
+
+- Windows 10/11
+- Node.js 20+
+- npm 10+
+
+> FFmpeg è bundled nell'applicazione, non serve installarlo.
+
+## Setup sviluppo
+
+```bash
+git clone https://github.com/TUO_USERNAME/beach-tennis-editor.git
+cd beach-tennis-editor
+npm install
+npm run dev
+```
+
+## Script disponibili
+
+```bash
+npm run dev       # Avvia in modalità sviluppo (hot reload)
+npm run build     # Build produzione
+npm run dist      # Crea installer .exe per Windows
+npm run test      # Esegui unit test (Jest)
+npm run lint      # Controlla linting (ESLint + Prettier)
+npm run lint:fix  # Fix automatico linting
+```
+
+## Struttura progetto
+
+Vedi `CLAUDE.md` per la struttura completa e le regole di sviluppo.
+
+## Branching
+
+Vedi `.github/BRANCHING.md` per le regole di versionamento.
+
+## Formato file progetto
+
+I progetti vengono salvati come file `.btproject` (JSON) nella cartella scelta dall'utente.
+Il file contiene tutte le informazioni della partita: clip, score events, formato, template overlay.
+I video originali non vengono mai copiati o modificati.
+
+## Milestone di sviluppo
+
+| # | Nome | Stato |
+|---|---|---|
+| M1 | Scaffolding Electron + Angular | 🔲 |
+| M2 | Video Player + Timeline base | 🔲 |
+| M3 | Score Engine | 🔲 |
+| M4 | Score Keyer | 🔲 |
+| M5 | Overlay Preview | 🔲 |
+| M6 | FFmpeg Export | 🔲 |
+| M7 | Polish + Installer | 🔲 |
