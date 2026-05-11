@@ -1,59 +1,55 @@
-# BeachTennisEditor
+# Beach Tennis Editor
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
+Applicazione desktop per Windows (Electron + Angular) per editare video di partite di Beach Tennis.
+Permette di unire/tagliare spezzoni video, segnare il punteggio con un click sul momento esatto della timeline,
+e sovrapporre graficamente il punteggio al video esportato.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+- **Electron 42** — desktop shell (main process)
+- **Angular 21** zoneless, standalone components, Signals (renderer process)
+- **TypeScript** strict mode
+- **FFmpeg** bundled via `ffmpeg-static` (per il merge/export in M6)
+- **Jest** + `jest-preset-angular` (unit test)
+- **ESLint** + **Prettier**
+- **electron-builder** per installer Windows NSIS
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Setup
 
 ```bash
-ng generate --help
+npm install
 ```
 
-## Building
+## Script disponibili
 
-To build the project run:
+| Comando | Cosa fa |
+|---|---|
+| `npm run dev` | Avvia Angular dev server + Electron in modalità sviluppo |
+| `npm run build` | Build produzione: `dist/renderer/` (Angular) e `dist/electron/` (main) |
+| `npm run build:renderer` | Solo build Angular |
+| `npm run build:electron` | Solo compilazione TypeScript del main process |
+| `npm test` | Esegue gli unit test Jest |
+| `npm run lint` | ESLint su `.ts` e `.html` |
+| `npm run dist` | Pacchettizza l'app come installer Windows `.exe` (NSIS) |
 
-```bash
-ng build
+## Struttura
+
+```
+beach-tennis-editor/
+├── electron/      # Main process (Node.js)
+├── src/           # Angular renderer
+├── assets/        # Asset statici (score templates)
+├── wiki/          # Documentazione di dettaglio
+└── CLAUDE.md      # Guida per Claude Code
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Documentazione
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [`CLAUDE.md`](CLAUDE.md) — fonte di verità per architettura, regole di codice, stack
+- [`wiki/`](wiki/) — documentazione tecnica dettagliata
+  - [`wiki/milestones.md`](wiki/milestones.md) — roadmap M1→M7
+  - [`wiki/domain-models.md`](wiki/domain-models.md) — modelli TypeScript
+  - [`wiki/score-logic.md`](wiki/score-logic.md) — regole punteggio Beach Tennis
+  - [`wiki/features.md`](wiki/features.md) — specifiche feature
+  - [`wiki/ipc-architecture.md`](wiki/ipc-architecture.md) — canali IPC Electron
+  - [`wiki/branching.md`](wiki/branching.md) — Git strategy
