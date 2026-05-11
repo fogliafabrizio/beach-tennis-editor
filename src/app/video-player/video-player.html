@@ -6,6 +6,7 @@
         class="video-player__video"
         [src]="src()"
         preload="metadata"
+        (loadedmetadata)="onVideoLoaded()"
         (timeupdate)="onTimeUpdate($event)"
         (play)="onPlay()"
         (pause)="onPause()"
@@ -21,15 +22,25 @@
         (onClick)="togglePlay()"
       />
       <span class="video-player__time" aria-live="off">
-        {{ currentTimeLabel() }} / {{ durationLabel() }}
+        {{ currentTimeLabel() }} / {{ totalDurationLabel() }}
       </span>
       <p-slider
         class="video-player__seek"
-        [ngModel]="player.currentTimeMs()"
+        [ngModel]="sliderModelMs()"
         [min]="0"
-        [max]="durationMs()"
+        [max]="totalDurationMs()"
         [step]="100"
-        (onChange)="onSeek($event.value)"
+        (pointerdown)="onSliderPointerDown()"
+        (onChange)="onSliderChange($event.value)"
+        (onSlideEnd)="onSliderEnd($event.value)"
+      />
+      <p-button
+        icon="pi pi-scissors"
+        label="Taglia"
+        severity="secondary"
+        title="Taglia clip qui (C)"
+        ariaLabel="Taglia clip nel punto corrente"
+        (onClick)="splitAtCurrentTime()"
       />
     </div>
   </div>

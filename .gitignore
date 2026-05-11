@@ -51,3 +51,8 @@ dist/
 
 # Claude Code (personal settings only — .claude/settings.json is shared)
 .claude/settings.local.json
+
+# Personal
+/wiki/raw/*
+projects/
+*.btproject

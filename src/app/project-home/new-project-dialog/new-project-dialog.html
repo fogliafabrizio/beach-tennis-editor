@@ -1,0 +1,52 @@
+<p-dialog
+  header="Nuovo progetto"
+  [visible]="visible()"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="new-project-dialog"
+  (onHide)="cancel()"
+>
+  <div class="new-project-form">
+    <div class="new-project-form__field">
+      <label for="project-name" class="new-project-form__label">Nome progetto</label>
+      <input
+        id="project-name"
+        pInputText
+        type="text"
+        class="new-project-form__input"
+        [ngModel]="projectName()"
+        (ngModelChange)="projectName.set($event)"
+        placeholder="es. Bucci - Rossi 11/05"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="new-project-form__field">
+      <span class="new-project-form__label">Percorso di salvataggio</span>
+      <div class="new-project-form__path-row">
+        <span class="new-project-form__path-text" [title]="savePath()">
+          {{ savePath() || 'Nessun percorso selezionato' }}
+        </span>
+        <p-button
+          label="Cambia..."
+          severity="secondary"
+          size="small"
+          (onClick)="choosePath()"
+        />
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Annulla" severity="secondary" (onClick)="cancel()" />
+    <p-button
+      label="Crea"
+      severity="primary"
+      [disabled]="!canCreate"
+      [loading]="isCreating()"
+      (onClick)="create()"
+    />
+  </ng-template>
+</p-dialog>

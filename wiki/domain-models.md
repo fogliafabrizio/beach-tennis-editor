@@ -71,8 +71,17 @@ interface VideoClip {
   trimStartMs: number;       // 0 se non trimmato
   trimEndMs: number;         // uguale a durationMs se non trimmato
   orderIndex: number;        // posizione nella sequenza video finale
+  color: string;             // hex auto-assegnato dalla palette (es. '#4A9EFF')
+  width: number;             // larghezza in pixel, 0 se non disponibile
+  height: number;            // altezza in pixel, 0 se non disponibile
 }
 ```
+
+> `color` è assegnato in modo ciclico su una palette di 8 colori (`CLIP_COLORS` in `library.service.ts`)
+> durante l'import. Viene usato nella clip library (pallino) e come bordo sinistro nella timeline.
+
+> `width` e `height` vengono letti dall'elemento `<video>` HTML5 durante l'import via
+> `readVideoMetadata`. In ambienti test (jsdom) risultano 0.
 
 > Timestamp assoluto nel video montato:
 > `sum(clips[0..i-1].effectiveDuration) + offsetInClip`
@@ -110,17 +119,49 @@ interface SetScore {
 ```
 
 ## BtProject (file di salvataggio sessione)
+
+**Formato M2.5** (senza Match/Score — aggiunto in M3):
 ```typescript
 interface BtProject {
-  version: string;           // es. "1.0"
-  match: Match;
+  version: string;           // es. "2.5"
+  projectName: string;       // nome del progetto (es. "Bucci - Rossi 11/05")
+  projectFilePath: string;   // path assoluto del file .btproject su disco
+  clips: VideoClip[];        // clip correnti (in M3 si sposteranno in Match.clips)
   exportSettings: ExportSettings;
   savedAt: string;           // ISO 8601
 }
 
+type VideoFormat = 'mp4' | 'mov';
+
 interface ExportSettings {
-  outputPath: string;
-  overlayTemplateId: string;
-  resolution: '720p' | '1080p' | '4k';
+  outputPath: string;        // path assoluto del file video esportato
+  overlayTemplateId: string; // ID template overlay (M5)
+  format: VideoFormat;       // default 'mp4'
+  width: number;             // default da prima clip o 1920
+  height: number;            // default da prima clip o 1080
+  frameRate: number;         // default 30 (rilevamento ffprobe in M6)
 }
 ```
+
+**Formato target M3+** (con Match):
+```typescript
+interface BtProject {
+  version: string;
+  projectName: string;
+  projectFilePath: string;
+  match: Match;              // include clips, teams, scoreEvents
+  exportSettings: ExportSettings;
+  savedAt: string;
+}
+```
+
+## RecentProject (indice dei progetti recenti)
+```typescript
+interface RecentProject {
+  name: string;
+  filePath: string;          // path assoluto del .btproject
+  savedAt: string;           // ISO 8601
+}
+```
+
+Salvato in `app.getPath('userData')/recent-projects.json` (max 10 voci, LIFO).

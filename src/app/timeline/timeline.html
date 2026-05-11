@@ -1,19 +1,95 @@
-<div class="timeline" role="toolbar" aria-label="Timeline clip">
-  @for (block of blocks(); track block.clip.id) {
+<div class="timeline-shell">
+  <!-- Toolbar zoom -->
+  <div class="timeline-toolbar">
     <button
       type="button"
-      class="timeline__block"
-      [class.timeline__block--active]="block.clip.id === activeClipId()"
-      [style.flexBasis.%]="block.widthPct"
-      [attr.aria-pressed]="block.clip.id === activeClipId()"
-      [title]="block.clip.filePath"
-      (click)="onSelect(block.clip.id)"
+      class="timeline-toolbar__btn"
+      (click)="zoomOut()"
+      title="Riduci zoom"
+      aria-label="Riduci zoom timeline"
     >
-      <span class="timeline__block-label">{{ block.label }}</span>
-      <span class="timeline__block-duration">{{ block.durationLabel }}</span>
-      @if (block.clip.id === activeClipId()) {
-        <span class="timeline__playhead" [style.left.%]="playheadPct()" aria-hidden="true"></span>
-      }
+      <i class="pi pi-minus"></i>
     </button>
-  }
+    <span class="timeline-toolbar__zoom-label">{{ zoomLevel() }}×</span>
+    <button
+      type="button"
+      class="timeline-toolbar__btn"
+      (click)="zoomIn()"
+      title="Aumenta zoom"
+      aria-label="Aumenta zoom timeline"
+    >
+      <i class="pi pi-plus"></i>
+    </button>
+  </div>
+
+  <!-- Timeline scrollabile -->
+  <div class="timeline-scroll" (wheel)="onWheel($event)">
+    <div
+      class="timeline-inner"
+      [style.minWidth.%]="zoomLevel() * 100"
+      (dragleave)="onDragLeave()"
+    >
+      <!-- Time ruler -->
+      @if (rulerTicks().length > 0) {
+        <div class="timeline-ruler" aria-hidden="true">
+          @for (tick of rulerTicks(); track tick.ms) {
+            <span class="timeline-ruler__tick" [style.left.%]="tick.pct">
+              {{ tick.label }}
+            </span>
+          }
+        </div>
+      }
+
+      <!-- Clip blocks -->
+      <div class="timeline-tracks" role="toolbar" aria-label="Timeline clip">
+        @for (block of blocks(); track block.clip.id) {
+          <div
+            class="timeline__block"
+            [class.timeline__block--active]="block.clip.id === activeClipId()"
+            [class.timeline__block--drag-over]="dragOverIndex() === block.index"
+            [style.flexBasis.%]="block.widthPct"
+            [style.borderLeftColor]="block.clip.color"
+            draggable="true"
+            tabindex="0"
+            role="button"
+            [attr.aria-pressed]="block.clip.id === activeClipId()"
+            [title]="block.clip.filePath"
+            (click)="onSelect(block.clip.id)"
+            (keydown.enter)="onSelect(block.clip.id)"
+            (keydown.space)="onSelect(block.clip.id)"
+            (dragstart)="onDragStart($event, block.index)"
+            (dragover)="onDragOver($event, block.index)"
+            (drop)="onDrop($event, block.index)"
+            (dragend)="onDragEnd()"
+          >
+            <!-- Left trim handle -->
+            <div
+              class="timeline__handle timeline__handle--left"
+              title="Trascina per rifilare l'inizio"
+              (mousedown)="onTrimHandleMouseDown($event, block, 'start')"
+            ></div>
+
+            <span class="timeline__block-label">{{ block.label }}</span>
+            <span class="timeline__block-duration">{{ block.durationLabel }}</span>
+
+            <!-- Playhead -->
+            @if (block.clip.id === activeClipId()) {
+              <span
+                class="timeline__playhead"
+                [style.left.%]="playheadPct()"
+                aria-hidden="true"
+              ></span>
+            }
+
+            <!-- Right trim handle -->
+            <div
+              class="timeline__handle timeline__handle--right"
+              title="Trascina per rifilare la fine"
+              (mousedown)="onTrimHandleMouseDown($event, block, 'end')"
+            ></div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
 </div>

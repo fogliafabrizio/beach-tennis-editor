@@ -1,17 +1,34 @@
-<main class="app-shell">
-  <header class="app-shell__header">
-    <h1>Beach Tennis Editor</h1>
-    <app-import-button />
-  </header>
-  <section class="app-shell__body">
-    <app-clip-list class="app-shell__sidebar" />
-    <div class="app-shell__main">
-      @if (isEmpty()) {
-        <p class="app-shell__empty">Importa un video per iniziare.</p>
-      } @else {
+@if (project.isEditorOpen()) {
+  <div class="app-shell">
+    <header class="app-shell__header">
+      <span class="app-shell__logo">Beach Tennis Editor</span>
+      <span class="app-shell__project-name">{{ project.currentProject()?.projectName }}</span>
+      <div class="app-shell__header-actions">
+        <button
+          type="button"
+          class="app-shell__save-btn"
+          [disabled]="project.isSaving()"
+          (click)="project.saveProject()"
+          title="Salva progetto (Ctrl+S)"
+        >
+          <i class="pi" [class.pi-save]="!project.isSaving()" [class.pi-spin]="project.isSaving()" [class.pi-spinner]="project.isSaving()"></i>
+          {{ project.isSaving() ? 'Salvataggio…' : 'Salva' }}
+        </button>
+      </div>
+    </header>
+
+    <div class="app-shell__body">
+      <aside class="app-shell__sidebar">
+        <app-clip-list class="app-shell__clip-library" />
+        <app-export-settings class="app-shell__export-panel" />
+      </aside>
+
+      <div class="app-shell__main">
         <app-video-player class="app-shell__player" />
         <app-timeline class="app-shell__timeline" />
-      }
+      </div>
     </div>
-  </section>
-</main>
+  </div>
+} @else {
+  <app-project-home />
+}

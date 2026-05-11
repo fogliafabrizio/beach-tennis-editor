@@ -43,8 +43,9 @@ beach-tennis-editor/
 │       └── ipc-channels.ts
 ├── src/                    # Angular app (Renderer process)
 │   ├── app/
-│   │   ├── app.component.ts
+│   │   ├── app.ts
 │   │   ├── layout/
+│   │   ├── project-home/       # Home screen + dialog nuovo progetto
 │   │   ├── timeline/
 │   │   ├── video-player/
 │   │   ├── score/
@@ -54,7 +55,16 @@ beach-tennis-editor/
 │   │   │   ├── score.service.ts
 │   │   │   └── templates/
 │   │   └── export/
+│   │       └── export-settings/  # Pannello impostazioni esportazione
 │   └── shared/
+│       ├── models/
+│       │   ├── video-clip.ts
+│       │   └── project.ts        # BtProject, ExportSettings, RecentProject
+│       └── services/
+│           ├── electron.service.ts
+│           ├── library.service.ts
+│           ├── player.service.ts
+│           └── project.service.ts
 ├── assets/
 │   └── score-templates/    # Template overlay JSON
 ├── wiki/                   # Documentazione dettagliata ← aggiorna qui
@@ -69,10 +79,11 @@ beach-tennis-editor/
 |---|---|
 | [`wiki/domain-models.md`](wiki/domain-models.md) | Tutti i modelli TypeScript (Match, Team, VideoClip, ScoreEvent, BtProject…) |
 | [`wiki/score-logic.md`](wiki/score-logic.md) | Regole punteggio BT, servizio, tiebreak |
-| [`wiki/features.md`](wiki/features.md) | Spec Score Keyer, Overlay, Import/Export |
+| [`wiki/features.md`](wiki/features.md) | Spec Project Home, Video Editor, Score Keyer, Overlay, Import/Export |
 | [`wiki/ipc-architecture.md`](wiki/ipc-architecture.md) | Canali IPC Electron, flusso renderer ↔ main |
 | [`wiki/milestones.md`](wiki/milestones.md) | Ordine sviluppo M1→M7 con checklist |
 | [`wiki/branching.md`](wiki/branching.md) | Git strategy, PR rules, Conventional Commits |
+| [`wiki/bugs.md`](wiki/bugs.md) | Bug noti aperti e tentativi già effettuati |
 
 ---
 

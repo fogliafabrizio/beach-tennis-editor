@@ -1,0 +1,53 @@
+<div class="home">
+  <header class="home__header">
+    <h1 class="home__title">Beach Tennis Editor</h1>
+  </header>
+
+  <main class="home__content">
+    <section class="home__recent" aria-labelledby="recent-heading">
+      <h2 id="recent-heading" class="home__section-title">Progetti recenti</h2>
+
+      @if (project.recentProjects().length === 0) {
+        <p class="home__empty">Nessun progetto recente. Crea o apri un progetto per iniziare.</p>
+      } @else {
+        <div class="home__grid">
+          @for (recent of project.recentProjects(); track recent.filePath) {
+            <button
+              type="button"
+              class="home__card"
+              (click)="openProject(recent)"
+              (dblclick)="openProject(recent)"
+              [title]="recent.filePath"
+            >
+              <div class="home__card-icon" aria-hidden="true">
+                <i class="pi pi-video"></i>
+              </div>
+              <span class="home__card-name">{{ recent.name }}</span>
+              <span class="home__card-date">{{ formatDate(recent.savedAt) }}</span>
+            </button>
+          }
+        </div>
+      }
+    </section>
+  </main>
+
+  <footer class="home__footer">
+    <p-button
+      label="Apri progetto"
+      icon="pi pi-folder-open"
+      severity="secondary"
+      (onClick)="openProjectDialog()"
+    />
+    <p-button
+      label="Nuovo progetto"
+      icon="pi pi-plus"
+      severity="primary"
+      (onClick)="openNewDialog()"
+    />
+  </footer>
+</div>
+
+<app-new-project-dialog
+  [visible]="showNewDialog()"
+  (visibleChange)="onDialogClose()"
+/>

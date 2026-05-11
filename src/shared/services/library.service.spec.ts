@@ -18,7 +18,7 @@ describe('LibraryService', () => {
           '/c.mp4': 500,
         };
         const ms = map[filePath] ?? 1_000;
-        return Promise.resolve({ durationMs: ms });
+        return Promise.resolve({ durationMs: ms, width: 0, height: 0 });
       });
 
     TestBed.configureTestingModule({
@@ -120,6 +120,45 @@ describe('LibraryService', () => {
     resolveMeta({ durationMs: 1_000 });
     await pending;
     expect(svc.isImporting()).toBe(false);
+  });
+
+  it('splitClip divides the active clip in two halves at the cut point', async () => {
+    const svc = TestBed.inject(LibraryService);
+    await svc.addClipsFromPaths(['/b.mp4']); // durationMs = 2000
+
+    const original = svc.clips()[0];
+    const result = svc.splitClip(original.id, 800);
+
+    expect(result).not.toBeNull();
+    expect(result!.firstId).toBe(original.id);
+    expect(result!.secondId).not.toBe(original.id);
+
+    const clips = svc.clips();
+    expect(clips).toHaveLength(2);
+    expect(clips[0]).toMatchObject({
+      id: original.id,
+      filePath: '/b.mp4',
+      trimStartMs: 0,
+      trimEndMs: 800,
+      orderIndex: 0,
+    });
+    expect(clips[1]).toMatchObject({
+      id: result!.secondId,
+      filePath: '/b.mp4',
+      trimStartMs: 800,
+      trimEndMs: 2_000,
+      orderIndex: 1,
+    });
+  });
+
+  it('splitClip is a no-op too close to the start or end of a clip', async () => {
+    const svc = TestBed.inject(LibraryService);
+    await svc.addClipsFromPaths(['/b.mp4']); // durationMs = 2000
+    const before = svc.clips();
+
+    expect(svc.splitClip(before[0].id, 50)).toBeNull();
+    expect(svc.splitClip(before[0].id, 1_990)).toBeNull();
+    expect(svc.clips()).toBe(before);
   });
 
   it('refuses concurrent importFromDialog calls', async () => {
