@@ -118,6 +118,23 @@ I test unitari verificano la correttezza del codice, non quella della feature. S
 
 ---
 
+## Allineamento lockfile (regola)
+
+**Prima di ogni push (e prima di aprire/aggiornare una PR), Claude DEVE verificare che `package-lock.json` sia allineato con `package.json`.** La CI gira `npm install` (vedi `.github/workflows/ci.yml`) e un lockfile fuori sincrono fa fallire la build.
+
+Procedura:
+
+1. Se `package.json` è stato modificato (anche solo per un bump o per nuove dipendenze), **rigenerare il lockfile**:
+   ```bash
+   npm install --package-lock-only
+   ```
+2. Verificare con `git status` se `package-lock.json` risulta modificato; in tal caso **includerlo nello stesso commit** delle modifiche a `package.json`.
+3. Mai pushare un commit che tocca `package.json` senza il corrispondente aggiornamento di `package-lock.json` nello stesso commit (o in uno precedente già pushato).
+
+Nota: alcune dipendenze cross-platform di `unrs-resolver` (transitiva di ESLint) non vengono registrate nel lockfile generato su Windows. Per questo motivo la CI usa `npm install` anziché `npm ci`. Se in futuro si torna a `npm ci`, va prevista una soluzione esplicita per quelle optional deps.
+
+---
+
 ## Note importanti
 
 - FFmpeg è **bundled** (`ffmpeg-static`): nessuna installazione separata richiesta

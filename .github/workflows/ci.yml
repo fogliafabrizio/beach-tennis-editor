@@ -13,6 +13,10 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci
+      # `npm install` invece di `npm ci`: il lockfile generato su Windows
+      # non lista alcune optional cross-platform di `unrs-resolver`
+      # (transitiva di ESLint) — note npm issue. Su CI Linux preferiamo
+      # lasciar risolvere quelle binding piuttosto che fallire `npm ci`.
+      - run: npm install --no-audit --no-fund
       - run: npm run lint
       - run: npm test
