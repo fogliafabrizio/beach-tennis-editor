@@ -48,3 +48,6 @@ dist/
 
 # Project files
 *.btproject
+
+# Claude Code (personal settings only — .claude/settings.json is shared)
+.claude/settings.local.json

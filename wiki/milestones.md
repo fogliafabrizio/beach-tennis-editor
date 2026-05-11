@@ -10,7 +10,7 @@ Sviluppare **in questo ordine**. Non passare alla milestone successiva senza che
 - [x] electron-builder configurato per Windows NSIS installer
 - [x] CI workflow `.github/workflows/ci.yml` (lint + test su PR)
 - [x] Commit iniziale su branch `develop`
-- [ ] GitHub repo remoto + branch protection (da fare manualmente)
+- [x] GitHub repo remoto + branch protection (da fare manualmente)
 
 ## M2 — Video Player + Timeline base
 - [ ] Import video da filesystem (dialog)

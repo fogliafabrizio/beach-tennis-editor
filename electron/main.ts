@@ -1,8 +1,24 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, protocol, net } from 'electron';
 import * as path from 'path';
+import { pathToFileURL } from 'url';
 import { IPC } from './models/ipc-channels';
 
 const isDev = !app.isPackaged;
+
+// Il protocollo `bt-media://` serve file video locali al renderer evitando
+// le restrizioni CSP/CORS di `file://`. Va dichiarato PRIMA di app.whenReady().
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'bt-media',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      stream: true,
+      bypassCSP: true,
+    },
+  },
+]);
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -26,6 +42,12 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  protocol.handle('bt-media', (request) => {
+    const url = new URL(request.url);
+    const filePath = decodeURIComponent(url.pathname.replace(/^\//, ''));
+    return net.fetch(pathToFileURL(filePath).toString());
+  });
+
   createWindow();
 
   app.on('activate', () => {
