@@ -44,17 +44,40 @@ Renderer (Angular)
 - Il preload espone solo le funzioni necessarie tramite `contextBridge.exposeInMainWorld`
 - Nessun `require` o `import` di moduli Node nel renderer
 
+## Sandbox del renderer
+
+`webPreferences.sandbox = false` in [`electron/main.ts`](../electron/main.ts).
+
+Motivazione: il preload importa file utente (es. `./models/ipc-channels`) per evitare
+magic string. In sandbox mode (default in Electron 20+) il preload può fare `require`
+solo di un sotto-insieme limitato di moduli (`electron`, `events`, `timers`, `url`):
+qualsiasi import di file relativi fa fallire silenziosamente il preload e
+`window.electronAPI` non viene mai esposto al renderer.
+
+`contextIsolation: true` e `nodeIntegration: false` rimangono attivi: il renderer
+non ha comunque accesso diretto né a Node né al global del preload.
+
 ## Protocollo `bt-media://`
 
 Per riprodurre file video locali nel `<video>` HTML5 del renderer senza incorrere
 nelle restrizioni di `file://` (bloccato dalla CSP del renderer Electron) è
 registrato un protocollo custom **`bt-media://`** in `electron/main.ts`.
 
-Mappatura URL → filesystem:
+Mappatura URL → filesystem. Il drive letter Windows viene reso come **primo
+segmento del path** (senza i due punti) per due motivi:
+
+1. evita che Chromium interpreti `C:` come `host:port` (risulterebbe
+   `bt-media://c/...`);
+2. evita di mettere `%3A` nel pathname, che fa scattare l'"URL safety check"
+   di Blink e fa fallire il `<video>` con `MediaError code=4`.
 
 ```
-bt-media:///C:/path/to/video.mp4  →  C:\path\to\video.mp4
+bt-media://local/C/path/to/video.mp4  →  C:\path\to\video.mp4
+bt-media://local/home/foo/clip.mp4    →  /home/foo/clip.mp4
 ```
+
+`local` è un hostname fittizio che rende l'URL esplicitamente standard
+(scheme://authority/path) senza ambiguità.
 
 Implementazione:
 
@@ -67,10 +90,16 @@ protocol.registerSchemesAsPrivileged([
   }},
 ]);
 
-// 2. Handler DOPO app.whenReady()
+// 2. Handler DOPO app.whenReady() — ricostruisce il path dai segmenti
 protocol.handle('bt-media', (request) => {
   const url = new URL(request.url);
-  const filePath = decodeURIComponent(url.pathname.replace(/^\//, ''));
+  const segments = url.pathname.split('/').filter((s) => s !== '').map(decodeURIComponent);
+  let filePath: string;
+  if (process.platform === 'win32' && /^[A-Za-z]$/.test(segments[0] ?? '')) {
+    filePath = `${segments[0].toUpperCase()}:\\${segments.slice(1).join('\\')}`;
+  } else {
+    filePath = '/' + segments.join('/');
+  }
   return net.fetch(pathToFileURL(filePath).toString());
 });
 ```
@@ -78,8 +107,7 @@ protocol.handle('bt-media', (request) => {
 `stream: true` è essenziale perché il tag `<video>` invia richieste Range per
 lo streaming progressivo del file.
 
-Il renderer costruisce gli URL con:
-
-```typescript
-const mediaUrl = `bt-media:///${encodeURI(clip.filePath.replace(/\\/g, '/'))}`;
-```
+Il renderer costruisce gli URL tramite [`buildBtMediaUrl`](../src/shared/utils/bt-media-url.ts),
+che oltre a `encodeURI` encoda esplicitamente `:`, `?` e `#` (caratteri che il
+parser URL standard tratterebbe rispettivamente come separatore host/port,
+query e fragment).

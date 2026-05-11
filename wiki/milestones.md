@@ -13,7 +13,7 @@ Sviluppare **in questo ordine**. Non passare alla milestone successiva senza che
 - [x] GitHub repo remoto + branch protection (da fare manualmente)
 
 ## M2 — Video Player + Timeline base
-- [ ] Import video da filesystem (dialog)
+- [x] Import video da filesystem (dialog)
 - [ ] Player con play/pause/seek
 - [ ] Timeline con clip visualizzate
 - [ ] Nessun processing FFmpeg ancora
