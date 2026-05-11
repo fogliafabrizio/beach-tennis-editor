@@ -2,11 +2,15 @@
 
 Sviluppare **in questo ordine**. Non passare alla milestone successiva senza che la precedente funzioni.
 
-## M1 — Scaffolding
-- [ ] Setup progetto Electron + Angular
-- [ ] Build pipeline funzionante (dev + prod) — packager: **electron-builder**
-- [ ] ESLint + Prettier configurati
-- [ ] GitHub repo creato da zero, branch protection su `main` e `develop`
+## M1 — Scaffolding ✅
+- [x] Setup progetto Electron 42 + Angular 21 (zoneless, standalone, SCSS)
+- [x] Build pipeline funzionante — `npm run build` genera `dist/renderer/` e `dist/electron/`
+- [x] Jest 30 + jest-preset-angular 16 configurati — 2 test passano
+- [x] ESLint (angular-eslint 21) + Prettier configurati — 0 errori
+- [x] electron-builder configurato per Windows NSIS installer
+- [x] CI workflow `.github/workflows/ci.yml` (lint + test su PR)
+- [x] Commit iniziale su branch `develop`
+- [ ] GitHub repo remoto + branch protection (da fare manualmente)
 
 ## M2 — Video Player + Timeline base
 - [ ] Import video da filesystem (dialog)
