@@ -1,0 +1,19 @@
+<div class="timeline" role="toolbar" aria-label="Timeline clip">
+  @for (block of blocks(); track block.clip.id) {
+    <button
+      type="button"
+      class="timeline__block"
+      [class.timeline__block--active]="block.clip.id === activeClipId()"
+      [style.flexBasis.%]="block.widthPct"
+      [attr.aria-pressed]="block.clip.id === activeClipId()"
+      [title]="block.clip.filePath"
+      (click)="onSelect(block.clip.id)"
+    >
+      <span class="timeline__block-label">{{ block.label }}</span>
+      <span class="timeline__block-duration">{{ block.durationLabel }}</span>
+      @if (block.clip.id === activeClipId()) {
+        <span class="timeline__playhead" [style.left.%]="playheadPct()" aria-hidden="true"></span>
+      }
+    </button>
+  }
+</div>

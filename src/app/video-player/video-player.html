@@ -1,0 +1,38 @@
+@if (activeClip(); as clip) {
+  <div class="video-player">
+    <div class="video-player__stage">
+      <video
+        #videoEl
+        class="video-player__video"
+        [src]="src()"
+        preload="metadata"
+        (timeupdate)="onTimeUpdate($event)"
+        (play)="onPlay()"
+        (pause)="onPause()"
+        (ended)="onEnded()"
+      ></video>
+    </div>
+    <div class="video-player__controls">
+      <p-button
+        [icon]="isPlaying() ? 'pi pi-pause' : 'pi pi-play'"
+        [ariaLabel]="isPlaying() ? 'Pausa' : 'Riproduci'"
+        severity="primary"
+        rounded
+        (onClick)="togglePlay()"
+      />
+      <span class="video-player__time" aria-live="off">
+        {{ currentTimeLabel() }} / {{ durationLabel() }}
+      </span>
+      <p-slider
+        class="video-player__seek"
+        [ngModel]="player.currentTimeMs()"
+        [min]="0"
+        [max]="durationMs()"
+        [step]="100"
+        (onChange)="onSeek($event.value)"
+      />
+    </div>
+  </div>
+} @else {
+  <p class="video-player__empty">Nessuna clip selezionata.</p>
+}

@@ -15,9 +15,9 @@ Sviluppare **in questo ordine**. Non passare alla milestone successiva senza che
 ## M2 — Video Player + Timeline base
 - [x] Import video da filesystem (dialog)
 - [x] Integrazione PrimeNG 21 (tema Aura dark, token CSS, p-button)
-- [ ] Player con play/pause/seek
-- [ ] Timeline con clip visualizzate
-- [ ] Nessun processing FFmpeg ancora
+- [x] Player con play/pause/seek
+- [x] Timeline con clip visualizzate
+- [x] Nessun processing FFmpeg ancora
 
 ## M3 — Score Engine
 - [ ] Modelli di dominio completi (vedi [domain-models.md](domain-models.md))

@@ -64,7 +64,14 @@ app.whenReady().then(() => {
       filePath = '/' + segments.join('/');
     }
 
-    return net.fetch(pathToFileURL(filePath).toString());
+    // Inoltrare method + headers (in particolare `Range`) è obbligatorio:
+    // il `<video>` HTML5 fa richieste parziali per streamare oltre il primo
+    // chunk; senza il forwarding, `net.fetch` risponde sempre 200 con i primi
+    // byte e il media decoder si blocca dopo il primo frame.
+    return net.fetch(pathToFileURL(filePath).toString(), {
+      method: request.method,
+      headers: request.headers,
+    });
   });
 
   createWindow();

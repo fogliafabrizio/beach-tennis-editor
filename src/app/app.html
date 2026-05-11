@@ -6,7 +6,12 @@
   <section class="app-shell__body">
     <app-clip-list class="app-shell__sidebar" />
     <div class="app-shell__main">
-      <p>Importa un video per iniziare.</p>
+      @if (isEmpty()) {
+        <p class="app-shell__empty">Importa un video per iniziare.</p>
+      } @else {
+        <app-video-player class="app-shell__player" />
+        <app-timeline class="app-shell__timeline" />
+      }
     </div>
   </section>
 </main>
