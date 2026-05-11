@@ -1,0 +1,14 @@
+<button
+  type="button"
+  class="import-button"
+  [disabled]="isImporting()"
+  (click)="onClick()"
+>
+  @if (isImporting()) {
+    <span class="import-button__spinner" aria-hidden="true"></span>
+    <span>Importazione…</span>
+  } @else {
+    <span aria-hidden="true">＋</span>
+    <span>Importa video</span>
+  }
+</button>
