@@ -30,6 +30,12 @@ function createWindow(): void {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      // Il preload importa moduli utente (es. `./models/ipc-channels`):
+      // con sandbox=true (default in Electron 42) il require di file utente
+      // viene bloccato e contextBridge non viene mai esposto al renderer.
+      // `contextIsolation:true` + `nodeIntegration:false` proteggono comunque
+      // dall'esecuzione di codice non autorizzato nel renderer.
+      sandbox: false,
     },
   });
 
@@ -43,8 +49,21 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   protocol.handle('bt-media', (request) => {
+    // Schema URL: bt-media://local/<drive>/<rest...> (Windows) o
+    //             bt-media://local/<rest...>          (Unix).
+    // Vedi `src/shared/utils/bt-media-url.ts`.
     const url = new URL(request.url);
-    const filePath = decodeURIComponent(url.pathname.replace(/^\//, ''));
+    const segments = url.pathname.split('/').filter((s) => s !== '').map(decodeURIComponent);
+
+    let filePath: string;
+    if (process.platform === 'win32' && segments.length > 0 && /^[A-Za-z]$/.test(segments[0])) {
+      const drive = segments[0].toUpperCase();
+      const rest = segments.slice(1).join('\\');
+      filePath = `${drive}:\\${rest}`;
+    } else {
+      filePath = '/' + segments.join('/');
+    }
+
     return net.fetch(pathToFileURL(filePath).toString());
   });
 

@@ -4,7 +4,7 @@
   "main": "dist/electron/main.js",
   "scripts": {
     "ng": "ng",
-    "dev": "concurrently \"ng serve\" \"wait-on http://localhost:4200 && electron .\"",
+    "dev": "npm run build:electron && concurrently \"ng serve\" \"wait-on http://localhost:4200 && electron .\"",
     "build": "ng build && tsc -p tsconfig.electron.json",
     "build:renderer": "ng build",
     "build:electron": "tsc -p tsconfig.electron.json",
