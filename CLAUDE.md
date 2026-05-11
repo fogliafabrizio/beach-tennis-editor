@@ -22,7 +22,8 @@ della timeline, e sovrapporre graficamente il punteggio al video esportato.
 | Language | TypeScript (strict mode ovunque) |
 | Video processing | FFmpeg (bundled via `ffmpeg-static`) |
 | State management | Angular Signals + Services |
-| Styling | SCSS + CSS custom properties |
+| UI components | PrimeNG 21+ (tema Aura dark, `darkModeSelector: '.dark'`) |
+| Styling | SCSS + CSS custom properties (token PrimeNG `var(--p-*)`) |
 | Linting | ESLint + Prettier |
 | Testing | Jest (unit) |
 
@@ -84,6 +85,7 @@ beach-tennis-editor/
 - **No magic strings**: usare costanti o enum (vedi `ipc-channels.ts`)
 - **Commenti**: solo dove il "perché" non è ovvio, mai il "cosa"
 - **File naming**: `kebab-case.service.ts`, `kebab-case.component.ts`
+- **PrimeNG**: usare componenti PrimeNG per tutti i controlli UI; evitare button/input/select nativi; usare sempre i token `var(--p-*)` nel CSS invece di colori hardcoded
 
 ---
 
