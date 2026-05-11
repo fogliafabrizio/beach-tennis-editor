@@ -91,12 +91,28 @@ beach-tennis-editor/
 
 ```bash
 npm install
-npm run dev      # Electron + Angular in dev mode
+npm run dev      # Electron + Angular in dev mode (ricompila electron prima)
 npm run test     # Jest unit test
 npm run lint     # ESLint
 npm run build    # Build produzione
 npm run dist     # Package .exe Windows
 ```
+
+---
+
+## Smoke test pre-PR (regola)
+
+**Prima di proporre il merge di una PR, Claude DEVE sempre:**
+
+1. Verificare che `npm run lint` e `npm run test` siano verdi.
+2. Avviare l'app con `npm run dev` quando la PR tocca codice runtime (UI, IPC, Electron, build).
+3. Fornire all'utente una **lista di passi specifici di smoke test manuale** che coprano:
+   - lo "golden path" della funzionalità appena aggiunta,
+   - 2-3 edge case rilevanti (path con spazi/Unicode, dataset vuoto, input multi-elemento, ecc.),
+   - regressioni plausibili nelle aree adiacenti.
+4. **Attendere l'OK esplicito dell'utente** dopo lo smoke test prima di committare e aprire la PR.
+
+I test unitari verificano la correttezza del codice, non quella della feature. Senza smoke test la PR non si propone.
 
 ---
 
