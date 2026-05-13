@@ -19,16 +19,16 @@ export class ElectronService {
     return window.electronAPI.saveOutputDialog(defaultName);
   }
 
-  async createProject(name: string, filePath: string): Promise<BtProject> {
-    return window.electronAPI.createProject(name, filePath) as Promise<BtProject>;
+  async createProject(name: string, filePath: string): Promise<unknown> {
+    return window.electronAPI.createProject(name, filePath);
   }
 
   async saveProject(project: BtProject): Promise<void> {
     return window.electronAPI.saveProject(project);
   }
 
-  async loadProject(filePath: string): Promise<BtProject> {
-    return window.electronAPI.loadProject(filePath) as Promise<BtProject>;
+  async loadProject(filePath: string): Promise<unknown> {
+    return window.electronAPI.loadProject(filePath);
   }
 
   async listRecentProjects(): Promise<RecentProject[]> {

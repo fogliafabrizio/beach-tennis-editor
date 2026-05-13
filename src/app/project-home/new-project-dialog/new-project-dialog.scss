@@ -2,7 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  min-width: 420px;
+  // Niente min-width: il dialog si adatta al viewport via [style] = {width, maxWidth}.
+  // min-width fisso causava overflow orizzontale quando il path era molto lungo.
+  width: 100%;
   padding: 0.25rem 0;
 }
 

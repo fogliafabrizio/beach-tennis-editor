@@ -175,10 +175,16 @@ interface BtProject {
 }
 ```
 
-**Transizione PR1 → PR3 di M3.** In PR1 il type ha `match?: Match` (opzionale) e
-mantiene `clips` top-level: nessuna modifica runtime. In PR3 `match` diventa
-required, `clips` top-level viene rimosso e il loader migra silenziosamente i
-file v2.5 (auto-popolamento di `match` con team placeholder + `STANDARD_BT_FORMAT`).
+**Migrazione M3 PR3.** `match` è required; `clips` top-level è stato rimosso.
+Il loader (`src/shared/services/project-migration.ts → migrateProject(raw)`)
+gestisce silenziosamente i file v2.5 al load: crea un `Match` con team
+placeholder ("Squadra 1" / "Squadra 2") e `STANDARD_BT_FORMAT`, sposta le
+`clips` top-level in `match.clips`, e riscrive in v3.0 al primo save. La
+migrazione è idempotente: un file v3.0 viene restituito invariato.
+
+Casi d'errore di `migrateProject`:
+- input non oggetto → throw `Il file .btproject non è un oggetto JSON valido.`
+- `version` sconosciuta (es. "4.0" dal futuro) → throw `Versione .btproject non supportata: …`
 
 ```typescript
 type VideoFormat = 'mp4' | 'mov';

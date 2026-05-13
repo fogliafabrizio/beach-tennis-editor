@@ -23,7 +23,15 @@ Valida per qualsiasi `SetFormat`:
 ## Servizio
 
 - Set normali: il servizio cambia ogni game
-- Tiebreak: il servizio cambia ogni 2 punti (il primo punto è di chi serviva l'ultimo game)
+- **Dentro il game** il servizio non cambia mai (incluso il punto secco a 40-40)
+- Tiebreak: il **primo punto** lo serve chi avrebbe dovuto servire il game
+  successivo (= NON chi ha servito l'ultimo game prima del tiebreak). Poi il
+  servizio cambia **ogni 2 punti** (pattern 1-2-2-2-…)
+- Inizio set successivo: alternanza rispetto all'ultimo "giro" del set precedente.
+  - Set chiuso senza tiebreak → 1 − chi ha servito l'ultimo game
+  - Set chiuso da tiebreak → 1 − chi ha iniziato il tiebreak
+  - Può essere forzato manualmente via `SetScore.servingTeamOverride` (eccezione
+    da regolamento torneo)
 - `ScoreSnapshot.servingTeam` riflette sempre chi serve il **punto successivo**
 
 ## Punteggi nel game
@@ -52,4 +60,37 @@ In questo caso `currentGame` rimane `[0, 0]` e si usa `currentPoint` per il punt
 - A 40-40: il punto successivo chiude il game (no vantaggio, no "A")
 - Fallo al servizio: punto diretto all'avversario (no seconda palla)
 - Partita già vinta (`matchWinner` presente): ignorare nuovi `ScoreEvent`
+  (lo snapshot resta invariato, il caller UI dovrà avvisare in M4)
 - Set interrotto: fuori scope per ora (M7)
+- Cambio campo (court swap): fuori scope M3 (rimandato a M7 con l'overlay)
+
+## Service API (M3 PR2)
+
+`ScoreService` vive in `src/app/score/score.service.ts` ed espone:
+
+```typescript
+computeSnapshot(
+  events: readonly ScoreEvent[],
+  format: MatchFormat,
+  initialServingTeam: 0 | 1,
+  setServingOverrides?: ReadonlyMap<number, 0 | 1>,
+): ScoreSnapshot
+
+buildScoreEvent(
+  timestampMs: number,
+  scorer: 0 | 1,
+  previousEvents: readonly ScoreEvent[],
+  format: MatchFormat,
+  initialServingTeam: 0 | 1,
+  setServingOverrides?: ReadonlyMap<number, 0 | 1>,
+  overlayType?: 'live' | 'detail',
+): ScoreEvent
+```
+
+`computeSnapshot` rebuilda lo stato da zero: la sorgente di verità è la lista
+eventi, mai una struttura mutabile. `buildScoreEvent` costruisce un nuovo
+evento e ne calcola lo `scoreSnapshot` come stato **dopo** l'aggiunta del
+punto (usato da M4 per il keyer).
+
+`setServingOverrides` è una mappa `setIndex → 0 | 1`: se presente per un set,
+forza chi serve a inizio del set ignorando l'alternanza naturale.
