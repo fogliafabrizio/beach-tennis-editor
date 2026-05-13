@@ -1,8 +1,10 @@
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import type { BtProject, ExportSettings, RecentProject } from '../models/project';
-import { DEFAULT_EXPORT_SETTINGS } from '../models/project';
+import { DEFAULT_EXPORT_SETTINGS, PROJECT_VERSION } from '../models/project';
+import type { Match } from '../models/match';
 import { ElectronService } from './electron.service';
 import { LibraryService } from './library.service';
+import { migrateProject } from './project-migration';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
@@ -23,22 +25,27 @@ export class ProjectService {
     () => this.currentProjectSignal()?.exportSettings ?? DEFAULT_EXPORT_SETTINGS
   );
 
+  readonly currentMatch = computed<Match | null>(
+    () => this.currentProjectSignal()?.match ?? null
+  );
+
   async initialize(): Promise<void> {
     const recent = await this.electron.listRecentProjects();
     this.recentProjectsSignal.set(recent);
   }
 
   async createProject(name: string, filePath: string): Promise<void> {
-    const project = await this.electron.createProject(name, filePath);
+    const raw = await this.electron.createProject(name, filePath);
+    const project = migrateProject(raw);
     this.library.clear();
     this.currentProjectSignal.set(project);
   }
 
   async openProject(filePath: string): Promise<void> {
-    const project = await this.electron.loadProject(filePath);
-    this.library.loadClips(project.clips);
+    const raw = await this.electron.loadProject(filePath);
+    const project = migrateProject(raw);
+    this.library.loadClips(project.match.clips);
     this.currentProjectSignal.set(project);
-    // Aggiorna la lista dei recenti
     const recent = await this.electron.listRecentProjects();
     this.recentProjectsSignal.set(recent);
   }
@@ -50,7 +57,11 @@ export class ProjectService {
     try {
       const updated: BtProject = {
         ...project,
-        clips: this.library.clips(),
+        version: PROJECT_VERSION,
+        match: {
+          ...project.match,
+          clips: this.library.clips(),
+        },
         savedAt: new Date().toISOString(),
       };
       await this.electron.saveProject(updated);
@@ -66,5 +77,11 @@ export class ProjectService {
     const project = this.currentProjectSignal();
     if (!project) return;
     this.currentProjectSignal.set({ ...project, exportSettings: settings });
+  }
+
+  updateMatch(updater: (match: Match) => Match): void {
+    const project = this.currentProjectSignal();
+    if (!project) return;
+    this.currentProjectSignal.set({ ...project, match: updater(project.match) });
   }
 }

@@ -1,7 +1,9 @@
-import type { VideoClip } from './video-clip';
 import type { Match } from './match';
 
 export type VideoFormat = 'mp4' | 'mov';
+
+export const PROJECT_VERSION = '3.0';
+export const LEGACY_PROJECT_VERSION = '2.5';
 
 export interface ExportSettings {
   readonly outputPath: string;
@@ -12,18 +14,14 @@ export interface ExportSettings {
   readonly frameRate: number;
 }
 
-// Formato file `.btproject`.
-// - v2.5 (legacy): clips top-level, niente Match.
-// - v3.0 (M3 target): match contiene clips/teams/scoreEvents; clips top-level non scritto più.
-// In transizione (M3 PR1): `match` è opzionale per non rompere il codice di runtime
-// finché la migrazione del loader (PR3) non è in piedi. PR3 lo renderà required e
-// rimuoverà `clips` top-level.
+// Formato file `.btproject` v3.0: `match` è il container di teams/clips/scoreEvents.
+// I file v2.5 (con `clips` top-level e senza `match`) vengono migrati silenziosamente
+// in memoria da `project-migration.ts` al load e riscritti in v3.0 al primo save.
 export interface BtProject {
   readonly version: string;
   readonly projectName: string;
   readonly projectFilePath: string;
-  readonly clips: readonly VideoClip[];
-  readonly match?: Match;
+  readonly match: Match;
   readonly exportSettings: ExportSettings;
   readonly savedAt: string; // ISO 8601
 }
