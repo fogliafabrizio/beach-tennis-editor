@@ -6,13 +6,18 @@ interface Match {
   id: string;
   teams: [Team, Team];
   format: MatchFormat;
-  sets: Set[];
+  sets: SetScore[];          // set giocati / in corso (NON i SetFormat di config)
   clips: VideoClip[];
   scoreEvents: ScoreEvent[];
-  servingTeam: 0 | 1;        // chi serve all'inizio della partita
-  createdAt: Date;
+  servingTeam: 0 | 1;        // chi serve all'inizio della partita (set 0, game 0)
+  createdAt: string;         // ISO 8601 (serializzabile in .btproject)
 }
 ```
+
+> `sets` è la sequenza degli **stati di set** (giocati/in corso), tipizzata come
+> [`SetScore[]`](#scoresnapshot). La **configurazione** dei set vive invece in
+> `MatchFormat.sets: SetFormat[]`. (PR1 di M3 ha corretto un precedente refuso che
+> tipizzava `sets: Set[]`.)
 
 ## Team e Player
 ```typescript
@@ -62,6 +67,15 @@ const standardBT: MatchFormat = {
 };
 ```
 
+I preset usati dall'app vivono in `src/shared/models/match-formats.ts`:
+
+- `STANDARD_BT_FORMAT` — 2 set a 6 + super tiebreak a 10 (l'esempio sopra)
+- `SET_9_FORMAT` — 2 set a 9 + super tiebreak a 10
+- `LONG_TIE_ONLY_FORMAT` — partita risolta da un solo super tiebreak a 10
+
+Un **long-tie set** è un set in cui `targetGames: 1, tiebreakAt: 0`: tutto il set
+è tiebreak fin dal primo punto (utile per il terzo set decisivo).
+
 ## VideoClip
 ```typescript
 interface VideoClip {
@@ -103,34 +117,70 @@ interface ScoreEvent {
 ```typescript
 interface ScoreSnapshot {
   sets: SetScore[];
-  currentSet: number;
-  currentGame: [number, number];
-  currentPoint: [string, string]; // es. ["40", "30"], ["40", "40"] = punto secco, tiebreak = ["6", "5"]
-  servingTeam: 0 | 1;
+  currentSet: number;                // indice del set in corso in `Match.format.sets`
+  currentGame: [number, number];     // game vinti dai due team nel set corrente
+  currentPoint: [string, string];    // SEMPRE stringhe (anche in tiebreak)
+  servingTeam: 0 | 1;                // chi serve il PROSSIMO punto
   isTiebreak: boolean;
-  matchWinner?: 0 | 1;       // presente solo se la partita è conclusa
+  matchWinner?: 0 | 1;               // presente solo se la partita è conclusa
 }
 
 interface SetScore {
   games: [number, number];
   winner?: 0 | 1;
   isTiebreak: boolean;
+  servingTeamOverride?: 0 | 1;       // forza chi serve l'inizio di questo set
+                                     // (eccezione rispetto all'alternanza standard)
 }
 ```
 
+`currentPoint` è sempre `[string, string]`:
+
+- **Nel game** (no-ad BT): `'0' | '15' | '30' | '40'`. A `['40', '40']` si gioca un
+  punto secco: il vincitore di quel punto vince il game (mai "A"/"vantaggio").
+- **Nel tiebreak**: stringa del numero corrente (`'0'`, `'1'`, `'2'`, …, `'7+'`).
+
+Uniformare il tipo a `string` rende immediato il render dell'overlay; la logica
+numerica usa indici interni.
+
+**servingTeamOverride** è un'eccezione rispetto alla regola "alterna chi ha servito
+l'ultimo game del set precedente": il torneo può prescrivere che un certo set
+inizi con un team specifico. L'utente può impostare l'override dal dialog
+configurazione (PR4) o lasciandolo `undefined` (alternanza automatica).
+
 ## BtProject (file di salvataggio sessione)
 
-**Formato M2.5** (senza Match/Score — aggiunto in M3):
+**Formato M2.5 (legacy)** — senza Match/Score:
 ```typescript
 interface BtProject {
-  version: string;           // es. "2.5"
-  projectName: string;       // nome del progetto (es. "Bucci - Rossi 11/05")
-  projectFilePath: string;   // path assoluto del file .btproject su disco
-  clips: VideoClip[];        // clip correnti (in M3 si sposteranno in Match.clips)
+  version: string;           // "2.5"
+  projectName: string;
+  projectFilePath: string;
+  clips: VideoClip[];        // top-level
   exportSettings: ExportSettings;
   savedAt: string;           // ISO 8601
 }
+```
 
+**Formato M3 (target)** — `version: "3.0"`, container `Match` al posto di `clips`
+top-level:
+```typescript
+interface BtProject {
+  version: string;           // "3.0"
+  projectName: string;
+  projectFilePath: string;
+  match: Match;              // include clips, teams, scoreEvents
+  exportSettings: ExportSettings;
+  savedAt: string;
+}
+```
+
+**Transizione PR1 → PR3 di M3.** In PR1 il type ha `match?: Match` (opzionale) e
+mantiene `clips` top-level: nessuna modifica runtime. In PR3 `match` diventa
+required, `clips` top-level viene rimosso e il loader migra silenziosamente i
+file v2.5 (auto-popolamento di `match` con team placeholder + `STANDARD_BT_FORMAT`).
+
+```typescript
 type VideoFormat = 'mp4' | 'mov';
 
 interface ExportSettings {
@@ -140,18 +190,6 @@ interface ExportSettings {
   width: number;             // default da prima clip o 1920
   height: number;            // default da prima clip o 1080
   frameRate: number;         // default 30 (rilevamento ffprobe in M6)
-}
-```
-
-**Formato target M3+** (con Match):
-```typescript
-interface BtProject {
-  version: string;
-  projectName: string;
-  projectFilePath: string;
-  match: Match;              // include clips, teams, scoreEvents
-  exportSettings: ExportSettings;
-  savedAt: string;
 }
 ```
 
