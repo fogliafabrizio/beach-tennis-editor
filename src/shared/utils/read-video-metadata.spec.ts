@@ -18,7 +18,7 @@ describe('readVideoMetadata', () => {
     const video = currentVideo();
     Object.defineProperty(video, 'duration', { configurable: true, value: 12.345 });
     video.dispatchEvent(new Event('loadedmetadata'));
-    await expect(promise).resolves.toEqual({ durationMs: 12_345 });
+    await expect(promise).resolves.toEqual({ durationMs: 12_345, width: 0, height: 0 });
   });
 
   it('builds a bt-media:// URL for the video src', async () => {

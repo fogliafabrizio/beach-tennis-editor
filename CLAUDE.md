@@ -22,7 +22,8 @@ della timeline, e sovrapporre graficamente il punteggio al video esportato.
 | Language | TypeScript (strict mode ovunque) |
 | Video processing | FFmpeg (bundled via `ffmpeg-static`) |
 | State management | Angular Signals + Services |
-| Styling | SCSS + CSS custom properties |
+| UI components | PrimeNG 21+ (tema Aura dark, `darkModeSelector: '.dark'`) |
+| Styling | SCSS + CSS custom properties (token PrimeNG `var(--p-*)`) |
 | Linting | ESLint + Prettier |
 | Testing | Jest (unit) |
 
@@ -42,8 +43,9 @@ beach-tennis-editor/
 │       └── ipc-channels.ts
 ├── src/                    # Angular app (Renderer process)
 │   ├── app/
-│   │   ├── app.component.ts
+│   │   ├── app.ts
 │   │   ├── layout/
+│   │   ├── project-home/       # Home screen + dialog nuovo progetto
 │   │   ├── timeline/
 │   │   ├── video-player/
 │   │   ├── score/
@@ -53,7 +55,16 @@ beach-tennis-editor/
 │   │   │   ├── score.service.ts
 │   │   │   └── templates/
 │   │   └── export/
+│   │       └── export-settings/  # Pannello impostazioni esportazione
 │   └── shared/
+│       ├── models/
+│       │   ├── video-clip.ts
+│       │   └── project.ts        # BtProject, ExportSettings, RecentProject
+│       └── services/
+│           ├── electron.service.ts
+│           ├── library.service.ts
+│           ├── player.service.ts
+│           └── project.service.ts
 ├── assets/
 │   └── score-templates/    # Template overlay JSON
 ├── wiki/                   # Documentazione dettagliata ← aggiorna qui
@@ -68,10 +79,11 @@ beach-tennis-editor/
 |---|---|
 | [`wiki/domain-models.md`](wiki/domain-models.md) | Tutti i modelli TypeScript (Match, Team, VideoClip, ScoreEvent, BtProject…) |
 | [`wiki/score-logic.md`](wiki/score-logic.md) | Regole punteggio BT, servizio, tiebreak |
-| [`wiki/features.md`](wiki/features.md) | Spec Score Keyer, Overlay, Import/Export |
+| [`wiki/features.md`](wiki/features.md) | Spec Project Home, Video Editor, Score Keyer, Overlay, Import/Export |
 | [`wiki/ipc-architecture.md`](wiki/ipc-architecture.md) | Canali IPC Electron, flusso renderer ↔ main |
 | [`wiki/milestones.md`](wiki/milestones.md) | Ordine sviluppo M1→M7 con checklist |
 | [`wiki/branching.md`](wiki/branching.md) | Git strategy, PR rules, Conventional Commits |
+| [`wiki/bugs.md`](wiki/bugs.md) | Bug noti aperti e tentativi già effettuati |
 
 ---
 
@@ -84,6 +96,7 @@ beach-tennis-editor/
 - **No magic strings**: usare costanti o enum (vedi `ipc-channels.ts`)
 - **Commenti**: solo dove il "perché" non è ovvio, mai il "cosa"
 - **File naming**: `kebab-case.service.ts`, `kebab-case.component.ts`
+- **PrimeNG**: usare componenti PrimeNG per tutti i controlli UI; evitare button/input/select nativi; usare sempre i token `var(--p-*)` nel CSS invece di colori hardcoded
 
 ---
 
@@ -113,6 +126,23 @@ npm run dist     # Package .exe Windows
 4. **Attendere l'OK esplicito dell'utente** dopo lo smoke test prima di committare e aprire la PR.
 
 I test unitari verificano la correttezza del codice, non quella della feature. Senza smoke test la PR non si propone.
+
+---
+
+## Allineamento lockfile (regola)
+
+**Prima di ogni push (e prima di aprire/aggiornare una PR), Claude DEVE verificare che `package-lock.json` sia allineato con `package.json`.** La CI gira `npm install` (vedi `.github/workflows/ci.yml`) e un lockfile fuori sincrono fa fallire la build.
+
+Procedura:
+
+1. Se `package.json` è stato modificato (anche solo per un bump o per nuove dipendenze), **rigenerare il lockfile**:
+   ```bash
+   npm install --package-lock-only
+   ```
+2. Verificare con `git status` se `package-lock.json` risulta modificato; in tal caso **includerlo nello stesso commit** delle modifiche a `package.json`.
+3. Mai pushare un commit che tocca `package.json` senza il corrispondente aggiornamento di `package-lock.json` nello stesso commit (o in uno precedente già pushato).
+
+Nota: alcune dipendenze cross-platform di `unrs-resolver` (transitiva di ESLint) non vengono registrate nel lockfile generato su Windows. Per questo motivo la CI usa `npm install` anziché `npm ci`. Se in futuro si torna a `npm ci`, va prevista una soluzione esplicita per quelle optional deps.
 
 ---
 

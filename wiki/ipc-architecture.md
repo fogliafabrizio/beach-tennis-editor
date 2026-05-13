@@ -9,21 +9,40 @@ Tutta la comunicazione renderer → main avviene tramite canali IPC tipizzati.
 // electron/models/ipc-channels.ts
 export const IPC = {
   FILE: {
-    OPEN_DIALOG: 'file:open-dialog',
-    READ:        'file:read',
+    OPEN_DIALOG:         'file:open-dialog',          // apre dialog video
+    READ:                'file:read',
+    OPEN_DIALOG_PROJECT: 'file:open-dialog-project',  // apre dialog .btproject
+    SAVE_DIALOG_PROJECT: 'file:save-dialog-project',  // salva dialog .btproject
+    SAVE_DIALOG_OUTPUT:  'file:save-dialog-output',   // salva dialog video output
   },
   FFMPEG: {
     MERGE:    'ffmpeg:merge',
     CUT:      'ffmpeg:cut',
     EXPORT:   'ffmpeg:export',
     PROGRESS: 'ffmpeg:progress', // evento main → renderer (push)
+    PROBE:    'ffmpeg:probe',    // → VideoProbeResult | null (stub fino a M6)
   },
   PROJECT: {
-    SAVE: 'project:save',
-    LOAD: 'project:load',
+    SAVE:        'project:save',
+    LOAD:        'project:load',        // riceve filePath, restituisce BtProject
+    NEW:         'project:new',         // riceve (name, filePath), crea file e restituisce BtProject
+    LIST_RECENT: 'project:list-recent', // restituisce RecentProject[]
+    ADD_RECENT:  'project:add-recent',  // aggiunge/aggiorna voce in recent-projects.json
   },
 } as const;
 ```
+
+### Comportamento canali PROJECT
+
+| Canale | Payload | Risposta |
+|---|---|---|
+| `project:new` | `(name: string, filePath: string)` | `BtProject` (vuoto, scritto su disco) |
+| `project:save` | `BtProject` completo | `void` (sovrascrive il file, aggiorna recenti) |
+| `project:load` | `filePath: string` | `BtProject` (letto da disco, aggiorna recenti) |
+| `project:list-recent` | — | `RecentProject[]` (max 10, LIFO) |
+| `project:add-recent` | `RecentEntry` | `void` |
+
+I recenti sono salvati in `app.getPath('userData')/recent-projects.json`.
 
 ## Flusso tipo
 

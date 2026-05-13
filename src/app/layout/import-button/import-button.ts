@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 import { LibraryService } from '../../../shared/services/library.service';
 
 @Component({
   selector: 'app-import-button',
+  imports: [ButtonModule],
   templateUrl: './import-button.html',
-  styleUrl: './import-button.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportButton {

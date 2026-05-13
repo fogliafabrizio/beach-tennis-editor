@@ -1,1 +1,18 @@
-/* You can add global styles to this file, and also import other style files */
+@layer primeng;
+
+@import 'primeicons/primeicons.css';
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--p-surface-900);
+  color: var(--p-text-color);
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+}

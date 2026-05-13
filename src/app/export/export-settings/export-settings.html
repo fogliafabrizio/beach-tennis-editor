@@ -1,0 +1,98 @@
+<div class="export-panel">
+  <button
+    type="button"
+    class="export-panel__toggle"
+    (click)="toggleExpand()"
+    [attr.aria-expanded]="isExpanded()"
+  >
+    <span class="export-panel__toggle-label">Esportazione</span>
+    <i class="pi" [class.pi-chevron-up]="isExpanded()" [class.pi-chevron-down]="!isExpanded()"></i>
+  </button>
+
+  @if (isExpanded()) {
+    <div class="export-panel__body">
+      <!-- Output path -->
+      <div class="export-panel__field">
+        <span class="export-panel__label">File output</span>
+        <div class="export-panel__path-row">
+          <span class="export-panel__path-text" [title]="settings().outputPath">
+            {{ settings().outputPath || 'Nessun percorso' }}
+          </span>
+          <button type="button" class="export-panel__path-btn" (click)="browseOutputPath()">
+            …
+          </button>
+        </div>
+      </div>
+
+      <!-- Format -->
+      <div class="export-panel__field">
+        <span class="export-panel__label">Formato</span>
+        <p-select
+          [options]="formatOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="settings().format"
+          (ngModelChange)="updateField('format', $event)"
+          styleClass="export-panel__select"
+        />
+      </div>
+
+      <!-- Resolution -->
+      <div class="export-panel__field">
+        <span class="export-panel__label">
+          Risoluzione
+          @if (firstClipSize()) {
+            <button type="button" class="export-panel__auto-btn" (click)="useFirstClip()">
+              Usa originale
+            </button>
+          }
+        </span>
+        <div class="export-panel__resolution-row">
+          <p-inputNumber
+            [ngModel]="settings().width"
+            (ngModelChange)="updateField('width', $event)"
+            [min]="1"
+            [max]="7680"
+            [useGrouping]="false"
+            inputStyleClass="export-panel__number-input"
+            placeholder="1920"
+          />
+          <span class="export-panel__times">×</span>
+          <p-inputNumber
+            [ngModel]="settings().height"
+            (ngModelChange)="updateField('height', $event)"
+            [min]="1"
+            [max]="4320"
+            [useGrouping]="false"
+            inputStyleClass="export-panel__number-input"
+            placeholder="1080"
+          />
+        </div>
+      </div>
+
+      <!-- Frame rate -->
+      <div class="export-panel__field">
+        <span class="export-panel__label">Frame rate (fps)</span>
+        <p-inputNumber
+          [ngModel]="settings().frameRate"
+          (ngModelChange)="updateField('frameRate', $event)"
+          [min]="1"
+          [max]="120"
+          [useGrouping]="false"
+          inputStyleClass="export-panel__number-input"
+          placeholder="30"
+        />
+      </div>
+
+      <!-- Export button (disabilitato fino a M6) -->
+      <p-button
+        label="Esporta video"
+        icon="pi pi-send"
+        severity="primary"
+        styleClass="export-panel__export-btn"
+        [disabled]="true"
+        title="Funzione disponibile in M6"
+      />
+    </div>
+  }
+</div>

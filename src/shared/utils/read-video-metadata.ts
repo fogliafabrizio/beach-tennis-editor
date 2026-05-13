@@ -2,6 +2,8 @@ import { buildBtMediaUrl } from './bt-media-url';
 
 export interface VideoMetadata {
   readonly durationMs: number;
+  readonly width: number;
+  readonly height: number;
 }
 
 export function readVideoMetadata(filePath: string, timeoutMs = 10_000): Promise<VideoMetadata> {
@@ -30,12 +32,14 @@ export function readVideoMetadata(filePath: string, timeoutMs = 10_000): Promise
       if (settled) return;
       settled = true;
       const seconds = video.duration;
+      const width = video.videoWidth;
+      const height = video.videoHeight;
       cleanup();
       if (!Number.isFinite(seconds) || seconds <= 0) {
         reject(new Error(`Durata non valida per ${filePath}`));
         return;
       }
-      resolve({ durationMs: Math.round(seconds * 1000) });
+      resolve({ durationMs: Math.round(seconds * 1000), width, height });
     };
 
     const onError = (): void => {

@@ -1,31 +1,40 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  min-height: 0;
 }
 
 .clip-list {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 1rem;
-  background: #202020;
-  border-right: 1px solid #2a2a2a;
-  box-sizing: border-box;
-  overflow-y: auto;
+  min-height: 0;
+  padding: 0.75rem;
+}
+
+.clip-list__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-shrink: 0;
 }
 
 .clip-list__heading {
-  margin: 0 0 0.75rem;
-  font-size: 0.85rem;
+  margin: 0;
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #aaa;
+  color: var(--p-text-muted-color);
 }
 
 .clip-list__empty {
   margin: 0;
-  color: #777;
+  padding: 0.25rem;
+  color: var(--p-text-muted-color);
   font-size: 0.875rem;
 }
 
@@ -35,18 +44,37 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 2px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .clip-list__item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.5rem 0.625rem;
-  border-radius: 4px;
-  background: #262626;
+  gap: 0.5rem;
+  padding: 0.5rem 0.375rem 0.5rem 0.625rem;
+  border-radius: var(--p-border-radius-sm);
+  background: var(--p-surface-700);
   font-size: 0.875rem;
+  cursor: default;
+  transition: background 120ms ease;
+
+  &:hover {
+    background: var(--p-surface-600);
+
+    .clip-list__remove {
+      opacity: 1;
+    }
+  }
+}
+
+.clip-list__color-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
 .clip-list__name {
@@ -55,11 +83,41 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--p-text-color);
 }
 
 .clip-list__duration {
   flex-shrink: 0;
-  color: #aaa;
+  color: var(--p-text-muted-color);
   font-variant-numeric: tabular-nums;
   font-size: 0.8rem;
+}
+
+.clip-list__remove {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--p-border-radius-sm);
+  color: var(--p-text-muted-color);
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  transition:
+    opacity 120ms ease,
+    background 120ms ease,
+    color 120ms ease;
+
+  &:hover {
+    background: var(--p-red-900, rgba(255, 107, 107, 0.15));
+    color: #ff6b6b;
+  }
+
+  .pi {
+    font-size: 0.7rem;
+  }
 }

@@ -1,0 +1,49 @@
+@if (activeClip(); as clip) {
+  <div class="video-player">
+    <div class="video-player__stage">
+      <video
+        #videoEl
+        class="video-player__video"
+        [src]="src()"
+        preload="metadata"
+        (loadedmetadata)="onVideoLoaded()"
+        (timeupdate)="onTimeUpdate($event)"
+        (play)="onPlay()"
+        (pause)="onPause()"
+        (ended)="onEnded()"
+      ></video>
+    </div>
+    <div class="video-player__controls">
+      <p-button
+        [icon]="isPlaying() ? 'pi pi-pause' : 'pi pi-play'"
+        [ariaLabel]="isPlaying() ? 'Pausa' : 'Riproduci'"
+        severity="primary"
+        rounded
+        (onClick)="togglePlay()"
+      />
+      <span class="video-player__time" aria-live="off">
+        {{ currentTimeLabel() }} / {{ totalDurationLabel() }}
+      </span>
+      <p-slider
+        class="video-player__seek"
+        [ngModel]="sliderModelMs()"
+        [min]="0"
+        [max]="totalDurationMs()"
+        [step]="100"
+        (pointerdown)="onSliderPointerDown()"
+        (onChange)="onSliderChange($event.value)"
+        (onSlideEnd)="onSliderEnd($event.value)"
+      />
+      <p-button
+        icon="pi pi-scissors"
+        label="Taglia"
+        severity="secondary"
+        title="Taglia clip qui (C)"
+        ariaLabel="Taglia clip nel punto corrente"
+        (onClick)="splitAtCurrentTime()"
+      />
+    </div>
+  </div>
+} @else {
+  <p class="video-player__empty">Nessuna clip selezionata.</p>
+}

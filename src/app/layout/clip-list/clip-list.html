@@ -1,13 +1,39 @@
-<aside class="clip-list" aria-label="Clip importate">
-  <h2 class="clip-list__heading">Clip</h2>
+<aside class="clip-list" aria-label="Libreria clip">
+  <div class="clip-list__header">
+    <h2 class="clip-list__heading">Clip</h2>
+    <p-button
+      icon="pi pi-plus"
+      [label]="isImporting() ? '' : 'Importa'"
+      [loading]="isImporting()"
+      severity="primary"
+      size="small"
+      (onClick)="import()"
+      [attr.aria-label]="isImporting() ? 'Importazione in corso…' : 'Importa video'"
+    />
+  </div>
+
   @if (isEmpty()) {
-    <p class="clip-list__empty">Nessuna clip importata.</p>
+    <p class="clip-list__empty">Importa i video della partita.</p>
   } @else {
     <ul class="clip-list__items">
       @for (clip of clips(); track clip.id) {
         <li class="clip-list__item">
+          <span
+            class="clip-list__color-dot"
+            [style.background]="clip.color"
+            aria-hidden="true"
+          ></span>
           <span class="clip-list__name" [title]="clip.filePath">{{ label(clip.filePath) }}</span>
           <span class="clip-list__duration">{{ duration(clip) }}</span>
+          <button
+            type="button"
+            class="clip-list__remove"
+            (click)="remove(clip.id)"
+            [attr.aria-label]="'Rimuovi ' + label(clip.filePath)"
+            title="Rimuovi clip"
+          >
+            <i class="pi pi-times"></i>
+          </button>
         </li>
       }
     </ul>
