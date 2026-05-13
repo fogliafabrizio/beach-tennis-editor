@@ -1,4 +1,5 @@
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import type { BtProject, ExportSettings, RecentProject } from '../models/project';
 import { DEFAULT_EXPORT_SETTINGS, PROJECT_VERSION } from '../models/project';
 import type { Match } from '../models/match';
@@ -10,6 +11,7 @@ import { migrateProject } from './project-migration';
 export class ProjectService {
   private readonly electron = inject(ElectronService);
   private readonly library = inject(LibraryService);
+  private readonly messages = inject(MessageService);
 
   private readonly currentProjectSignal = signal<BtProject | null>(null);
   private readonly recentProjectsSignal = signal<readonly RecentProject[]>([]);
@@ -68,6 +70,19 @@ export class ProjectService {
       this.currentProjectSignal.set(updated);
       const recent = await this.electron.listRecentProjects();
       this.recentProjectsSignal.set(recent);
+      this.messages.add({
+        severity: 'success',
+        summary: 'Progetto salvato',
+        detail: updated.projectName,
+      });
+    } catch (err) {
+      this.messages.add({
+        severity: 'error',
+        summary: 'Salvataggio fallito',
+        detail: err instanceof Error ? err.message : 'Errore sconosciuto',
+        life: 6000,
+      });
+      throw err;
     } finally {
       this.isSavingSignal.set(false);
     }

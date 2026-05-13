@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { MessageService } from 'primeng/api';
 import { App } from './app';
 import { ElectronService } from '../shared/services/electron.service';
 
@@ -17,7 +18,10 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [{ provide: ElectronService, useValue: mockElectronService }],
+      providers: [
+        { provide: ElectronService, useValue: mockElectronService },
+        MessageService,
+      ],
     }).compileComponents();
   });
 
